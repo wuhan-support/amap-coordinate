@@ -19,12 +19,11 @@ func NewClient (apiKey string) *SearchClient {
 	}
 }
 
-func (c *SearchClient) Search(name string, types string, city string) (SearchPOIResult, error) {
+func (c *SearchClient) Search(name string, types string) (SearchPOIResult, error) {
 	u := url.Values{}
 	u.Add("key", c.apiKey)
 	u.Add("keywords", name)
 	u.Add("types", types)
-	u.Add("city", city)
 
 	uu := fmt.Sprintf("https://restapi.amap.com/v3/place/text?%s", u.Encode())
 	spew.Dump(uu)
@@ -45,6 +44,9 @@ func (c *SearchClient) Search(name string, types string, city string) (SearchPOI
 	}
 	spew.Dump(r)
 
+	if len(r.POIs) < 1 {
+		return SearchPOIResult{}, fmt.Errorf("noresult")
+	}
 	location := r.POIs[0].Location
 	segments := strings.Split(location, ",")
 	return SearchPOIResult{
